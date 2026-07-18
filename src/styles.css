@@ -1,0 +1,75 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+#boot-screen {
+  padding-top: 10vh;
+  text-align: center;
+}
+
+h1 {
+  text-align: center;
+}
+
+#status-list {
+  list-style: none;
+  padding: 0;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4em;
+  text-align: left;
+  font-family: ui-monospace, monospace;
+}
+
+.state-ready {
+  color: #2e7d32;
+}
+
+.state-pending {
+  color: #757575;
+}
+
+.state-timeout,
+.state-exited {
+  color: #c62828;
+}
+
+#portal-frame {
+  display: none;
+  border: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+body.portal-ready #boot-screen {
+  display: none;
+}
+
+body.portal-ready #portal-frame {
+  display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+}
