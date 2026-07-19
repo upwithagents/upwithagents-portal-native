@@ -52,6 +52,17 @@ h1 {
   color: #c62828;
 }
 
+#debug-log {
+  margin: 2rem auto 0;
+  max-width: 40rem;
+  text-align: left;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  opacity: 0.55;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
 #portal-frame {
   display: none;
   border: none;

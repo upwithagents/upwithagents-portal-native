@@ -4,9 +4,22 @@ const { invoke } = window.__TAURI__.core;
 const PORTAL_SLUG = "portal";
 const PORTAL_URL = "http://localhost:3000";
 const ICONS = { pending: "○", ready: "✓", timeout: "✗", exited: "✗" };
+const READY_TIMEOUT_MS = 20_000;
 
 // slug -> { port, state }
 const apps = new Map();
+
+// Visible on-screen log: this app has no way to open dev tools without
+// accessibility permissions granted, so if something goes wrong, a plain
+// console.error is invisible. Show it directly on the boot screen instead.
+function log(message) {
+  const el = document.querySelector("#debug-log");
+  if (!el) return;
+  const line = document.createElement("div");
+  const time = new Date().toISOString().split("T")[1].replace("Z", "");
+  line.textContent = `[${time}] ${message}`;
+  el.appendChild(line);
+}
 
 function render() {
   const list = document.querySelector("#status-list");
@@ -41,28 +54,35 @@ function handleStatus(payload) {
     for (const app of payload.apps) {
       apps.set(app.slug, { port: app.port, state: "pending" });
     }
+    log(`manifest: ${payload.apps.length} apps`);
     render();
     return;
   }
 
   const existing = apps.get(payload.slug);
   apps.set(payload.slug, { port: payload.port ?? existing?.port, state: payload.state });
+  log(`${payload.slug}: ${payload.state}`);
   render();
 
   if (payload.slug === PORTAL_SLUG && payload.state === "ready") {
+    log("portal ready - showing it");
     showPortal();
   }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  log("page loaded, registering listeners");
+
   // Register listeners before pulling the snapshot below, so nothing
   // that arrives in between is missed.
-  listen("app-status", (event) => handleStatus(event.payload));
+  listen("app-status", (event) => handleStatus(event.payload)).catch((err) =>
+    log(`listen(app-status) failed: ${JSON.stringify(err)}`),
+  );
   listen("restarting", () => {
     for (const info of apps.values()) info.state = "pending";
     render();
     showBootScreen();
-  });
+  }).catch((err) => log(`listen(restarting) failed: ${JSON.stringify(err)}`));
 
   // The orchestrator can emit its manifest and early ready events before
   // this page has finished loading and registered the listeners above -
@@ -70,11 +90,21 @@ window.addEventListener("DOMContentLoaded", () => {
   // catch up on anything already missed. HashMap iteration order on the
   // Rust side isn't guaranteed, so apply the manifest first regardless of
   // array order, then the rest.
-  invoke("get_status").then((payloads) => {
-    const manifest = payloads.find((p) => p.type === "manifest");
-    if (manifest) handleStatus(manifest);
-    for (const payload of payloads) {
-      if (payload.type !== "manifest") handleStatus(payload);
+  log("calling get_status");
+  invoke("get_status")
+    .then((payloads) => {
+      log(`get_status resolved: ${payloads.length} entries`);
+      const manifest = payloads.find((p) => p.type === "manifest");
+      if (manifest) handleStatus(manifest);
+      for (const payload of payloads) {
+        if (payload.type !== "manifest") handleStatus(payload);
+      }
+    })
+    .catch((err) => log(`get_status FAILED: ${JSON.stringify(err)}`));
+
+  setTimeout(() => {
+    if (!document.body.classList.contains("portal-ready")) {
+      log(`still not ready after ${READY_TIMEOUT_MS / 1000}s - see lines above for where it stalled`);
     }
-  });
+  }, READY_TIMEOUT_MS);
 });

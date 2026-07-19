@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "UpPortal",
+  "productName": "UpWithAgents",
   "version": "0.1.0",
   "identifier": "com.upwithagents.upportal-native",
   "build": {
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "UpPortal",
+        "title": "UpWithAgents",
         "width": 1200,
         "height": 800
       }
