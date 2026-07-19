@@ -46,6 +46,16 @@ fn spawn_orchestrator(app: &AppHandle) {
     );
     let mut child = match Command::new("pnpm")
         .arg("dev")
+        // A previous run's processes can outlive this app closing (a
+        // force-quit, a crash, or anything else that skips the graceful
+        // SIGTERM path below) and are still holding these ports on the
+        // next launch. Unlike the CLI orchestrator, which is used
+        // directly by a developer and rightly refuses to guess, this is
+        // a native app meant to just work on double-click - auto-clear
+        // stale occupants rather than leaving the user to hunt them down
+        // in Activity Monitor. The orchestrator still logs what it killed
+        // (surfaced via the stderr capture below), so it's not silent.
+        .arg("--force-ports")
         .current_dir(PORTAL_DIR)
         .env("PATH", path)
         .stdout(Stdio::piped())
