@@ -40,26 +40,43 @@ function render() {
     total > 0 ? `${readyCount} of ${total} ready…` : "Starting…";
 }
 
-function showPortal() {
+const PORTAL_LOAD_MAX_ATTEMPTS = 5;
+const PORTAL_LOAD_RETRY_MS = 500;
+
+function showPortal(attempt = 1) {
   const frame = document.querySelector("#portal-frame");
-  // Wait for the iframe to actually finish loading before fading away the
-  // boot screen - the orchestrator's "ready" event only means the dev
-  // server accepted a connection, not that the page has rendered. The
-  // 'load' event itself can also fire a frame or two before the loaded
-  // page is actually composited, so wait a couple of animation frames
-  // past it too before starting the fade - otherwise the reveal can catch
-  // the window's bare background for an instant.
-  frame.addEventListener(
-    "load",
-    () => {
+
+  function onLoad() {
+    frame.removeEventListener("error", onError);
+    // Wait for the iframe to actually finish loading before fading away
+    // the boot screen - the orchestrator's "ready" event only means the
+    // dev server accepted a connection, not that the page has rendered.
+    // The 'load' event itself can also fire a frame or two before the
+    // loaded page is actually composited, so wait a couple of animation
+    // frames past it too before starting the fade - otherwise the reveal
+    // can catch the window's bare background for an instant.
+    requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          document.body.classList.add("portal-ready");
-        });
+        document.body.classList.add("portal-ready");
       });
-    },
-    { once: true },
-  );
+    });
+  }
+
+  // The orchestrator's readiness check can briefly race a leftover process
+  // still tearing down on the same port (e.g. right after a restart) -
+  // that can reset the iframe's connection instead of firing 'load',
+  // which used to leave the boot screen stuck forever waiting for a
+  // 'load' that would never come. Retry a few times on 'error' instead.
+  function onError() {
+    frame.removeEventListener("load", onLoad);
+    log(`portal iframe failed to load (attempt ${attempt}/${PORTAL_LOAD_MAX_ATTEMPTS})`);
+    if (attempt < PORTAL_LOAD_MAX_ATTEMPTS) {
+      window.setTimeout(() => showPortal(attempt + 1), PORTAL_LOAD_RETRY_MS);
+    }
+  }
+
+  frame.addEventListener("load", onLoad, { once: true });
+  frame.addEventListener("error", onError, { once: true });
   // Cache-bust: the app window's WebView data store persists across
   // launches (unlike a fresh browser tab), so a stale cached response -
   // e.g. a transient 404 caught mid-restart during dev-mode iteration -
