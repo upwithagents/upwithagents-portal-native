@@ -42,12 +42,23 @@ function render() {
 
 function showPortal() {
   const frame = document.querySelector("#portal-frame");
+  // Wait for the iframe to actually finish loading before swapping away
+  // from the boot screen - the orchestrator's "ready" event only means the
+  // dev server accepted a connection, not that the page has rendered, so
+  // switching immediately left a blank/gray gap while the portal compiled
+  // and painted.
+  frame.addEventListener(
+    "load",
+    () => {
+      document.body.classList.add("portal-ready");
+    },
+    { once: true },
+  );
   // Cache-bust: the app window's WebView data store persists across
   // launches (unlike a fresh browser tab), so a stale cached response -
   // e.g. a transient 404 caught mid-restart during dev-mode iteration -
   // could otherwise keep being served instead of a fresh request.
   frame.src = `${PORTAL_URL}/?_t=${Date.now()}`;
-  document.body.classList.add("portal-ready");
 }
 
 function showBootScreen() {
