@@ -9,9 +9,40 @@
 
   <body>
     <div id="boot-screen">
+      <svg id="ascent-mark" viewBox="0 0 500 320" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="ascent-dawn" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#ff5a1f" />
+            <stop offset="1" stop-color="#e8a200" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M 14 296 L 96 296 L 96 246 L 178 246 L 178 262 L 252 262 L 252 196 L 336 196 L 336 128 L 418 128 L 418 46"
+          stroke="url(#ascent-dawn)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <circle
+          id="ascent-light"
+          r="5"
+          fill="#ff7a42"
+          style="offset-path: path('M 14 296 L 96 296 L 96 246 L 178 246 L 178 262 L 252 262 L 252 196 L 336 196 L 336 128 L 418 128 L 418 46'); offset-rotate: 0deg"
+        />
+        <path
+          d="M50,30 L78,66 L50,55 L22,66 Z"
+          fill="#e8a200"
+          transform="translate(418,46) scale(0.5) translate(-50,-66)"
+        />
+      </svg>
       <h1>UpWithAgents</h1>
-      <ul id="status-list"></ul>
-      <div id="debug-log"></div>
+      <div id="progress-track"><div id="progress-fill"></div></div>
+      <p id="progress-caption">Starting…</p>
+      <button id="details-toggle" type="button">Show details</button>
+      <div id="details">
+        <ul id="status-list"></ul>
+        <div id="debug-log"></div>
+      </div>
     </div>
     <iframe id="portal-frame" title="upwithagents portal"></iframe>
     <script type="module" src="/main.js" defer></script>

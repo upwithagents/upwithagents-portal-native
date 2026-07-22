@@ -24,12 +24,20 @@ function log(message) {
 function render() {
   const list = document.querySelector("#status-list");
   list.innerHTML = "";
+  let readyCount = 0;
   for (const [slug, info] of apps) {
     const li = document.createElement("li");
     li.className = `state-${info.state}`;
     li.textContent = `${ICONS[info.state] ?? "○"} ${slug} (:${info.port})`;
     list.appendChild(li);
+    if (info.state === "ready") readyCount += 1;
   }
+
+  const total = apps.size;
+  const pct = total > 0 ? Math.round((readyCount / total) * 100) : 0;
+  document.querySelector("#progress-fill").style.width = `${pct}%`;
+  document.querySelector("#progress-caption").textContent =
+    total > 0 ? `${readyCount} of ${total} ready…` : "Starting…";
 }
 
 function showPortal() {
@@ -71,6 +79,10 @@ function handleStatus(payload) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  document.querySelector("#details-toggle").addEventListener("click", () => {
+    document.querySelector("#boot-screen").classList.toggle("details-open");
+  });
+
   log("page loaded, registering listeners");
 
   // Register listeners before pulling the snapshot below, so nothing
@@ -116,6 +128,7 @@ window.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
     if (!document.body.classList.contains("portal-ready")) {
       log(`still not ready after ${READY_TIMEOUT_MS / 1000}s - see lines above for where it stalled`);
+      document.querySelector("#boot-screen").classList.add("details-open");
     }
   }, READY_TIMEOUT_MS);
 });

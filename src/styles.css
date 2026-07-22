@@ -25,13 +25,92 @@ body {
   text-align: center;
 }
 
+#ascent-mark {
+  width: 220px;
+  height: 141px;
+  margin: 0 auto 0.5rem;
+  display: block;
+}
+
+#ascent-light {
+  animation: ascent-travel 2.4s cubic-bezier(0.45, 0.05, 0.35, 0.95) infinite;
+  filter: drop-shadow(0 0 5px #ff7a42);
+}
+
+@keyframes ascent-travel {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ascent-light {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 h1 {
   text-align: center;
+}
+
+#progress-track {
+  width: min(320px, 70vw);
+  height: 4px;
+  margin: 1.5rem auto 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  overflow: hidden;
+}
+
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff5a1f, #e8a200);
+  transition: width 400ms cubic-bezier(0.2, 0.6, 0.4, 1);
+}
+
+#progress-caption {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+#details-toggle {
+  margin-top: 1.5rem;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.55;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#details {
+  display: none;
+}
+
+#boot-screen.details-open #details {
+  display: block;
 }
 
 #status-list {
   list-style: none;
   padding: 0;
+  margin: 1.5rem auto 0;
   display: inline-flex;
   flex-direction: column;
   gap: 0.4em;
@@ -53,7 +132,7 @@ h1 {
 }
 
 #debug-log {
-  margin: 2rem auto 0;
+  margin: 1.5rem auto 0;
   max-width: 40rem;
   text-align: left;
   font-family: ui-monospace, monospace;
