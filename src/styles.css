@@ -71,6 +71,50 @@ h1 {
   text-align: center;
 }
 
+#brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.brand-icon {
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.brand-wordmark {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.brand-accent {
+  color: #e8722d;
+}
+
+.brand-flag-wrap {
+  position: relative;
+}
+
+.brand-flag {
+  position: absolute;
+  left: 50%;
+  top: -0.02em;
+  height: 0.5em;
+  width: 0.5em;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.brand-flag svg {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 #progress-track {
   width: min(320px, 70vw);
   height: 4px;
